@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}StockScope | Search{% endblock %}
+{% block content %}
+<section class="hero small">
+  {% if current_user.is_authenticated %}
+  <h1>Welcome, {{ current_user.username }}</h1>
+  {% else %}
+  <h1>Welcome to StockScope</h1>
+  {% endif %}
+  <p>Search a ticker to view valuation metrics and growth signals.</p>
+</section>
+
+<section class="card">
+  <form id="home-search-form" class="search-form">
+    <label for="ticker">Search Ticker</label>
+    <div class="search-row">
+      <input id="ticker" name="ticker" placeholder="AAPL" required />
+      <button type="submit">Search</button>
+    </div>
+  </form>
+</section>
+
+<section class="card nav-hub">
+  {% if current_user.is_authenticated %}
+  <a class="link-button" href="{{ url_for('favorites_page') }}">Favorites</a>
+  <a class="link-button" href="{{ url_for('profile_page') }}">Profile</a>
+  {% else %}
+  <a class="link-button" href="{{ url_for('login_page') }}">Login</a>
+  <a class="link-button" href="{{ url_for('register_page') }}">Sign Up</a>
+  {% endif %}
+</section>
+{% endblock %}

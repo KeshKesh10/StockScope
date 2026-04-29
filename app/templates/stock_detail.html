@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}StockScope | Results{% endblock %}
+{% block content %}
+<section class="card" id="detail-panel" data-ticker="{{ ticker }}">
+  <h1 id="result-title">{{ ticker }}</h1>
+  <p id="result-industry">Industry: N/A</p>
+
+  <div class="metrics-grid">
+    <article>
+      <h3>P/E Ratio</h3>
+      <p id="detail-pe"></p>
+    </article>
+    <article>
+      <h3>Growth Rate</h3>
+      <p id="detail-growth"></p>
+    </article>
+    <article>
+      <h3>Growth / P-E</h3>
+      <p id="detail-gop"></p>
+    </article>
+    <article>
+      <h3>Growth > P/E</h3>
+      <p id="detail-gop-pass"></p>
+    </article>
+  </div>
+
+  <div class="extras-grid">
+    <p><strong>52W High:</strong> <span id="detail-high"></span></p>
+    <p><strong>Upcoming Earnings:</strong> <span id="detail-earnings"></span></p>
+    <p><strong>Analyst Target:</strong> <span id="detail-target"></span></p>
+  </div>
+
+  <p id="detail-desc"></p>
+
+  {% if current_user.is_authenticated %}
+  <button id="detail-favorite-btn" type="button">Favorite</button>
+  {% endif %}
+  <a class="link-button" href="{{ url_for('index') }}">Back</a>
+</section>
+{% endblock %}

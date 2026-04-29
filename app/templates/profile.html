@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}StockScope | Profile{% endblock %}
+{% block content %}
+<section class="hero small">
+  <h1>Profile</h1>
+  <p>Signed in as {{ current_user.username }}.</p>
+</section>
+
+<section class="card">
+  <p>Use Favorites to manage your saved stocks and Industry page to filter them.</p>
+  <p>
+    <a class="link-button" href="{{ url_for('favorites_page') }}">Favorites</a>
+    <a class="link-button" href="{{ url_for('industry_page') }}">Industry Search</a>
+  </p>
+</section>
+{% endblock %}

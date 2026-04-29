@@ -5,7 +5,6 @@ StockScope is a full-stack stock analysis app that lets users query a ticker and
 - 1-year net income growth rate (computed from Alpha Vantage annual income statement data)
 - P/E ratio
 - Growth over P/E ratio (growth divided by P/E)
-- Growth-over-P/E threshold check (`> 1`)
 - Lynch-style check (P/E < growth)
 
 It also supports user accounts and user-specific favorite stocks stored in a database with industry tagging and industry-based filtering.
@@ -15,12 +14,10 @@ It also supports user accounts and user-specific favorite stocks stored in a dat
 ### Required
 - Query stock by ticker symbol
 - Calculate 1-year growth rate using:
-  - `Growth Rate = ((Ending - Beginning) / Beginning) * 100`
-  - Beginning and ending values taken from net income in the latest two annual reports
+	- `Growth Rate = ((Ending - Beginning) / Beginning) * 100`
+	- Beginning and ending values taken from net income in the latest two annual reports
 - Show P/E ratio from provider data
-- Show Growth/P-E and indicate both:
-  - whether Growth/P-E is greater than 1
-  - whether Lynch rule passes (`P/E < Growth`)
+- Show Growth/P-E and indicate Lynch check pass/fail
 - Popup error modal if ticker is not found
 
 ### Nice to Have (Implemented)
@@ -29,7 +26,7 @@ It also supports user accounts and user-specific favorite stocks stored in a dat
 - Show user favorites with metrics
 - Filter favorites by industry
 
-### Next Level (Implemented/Partially Implemented)
+### Next Level (Partially Implemented)
 - Login and routing
 - User-specific favorite tracking (not global favorites)
 - In-depth stock page route with enhanced info (analyst target, 52-week range)
@@ -43,36 +40,36 @@ It also supports user accounts and user-specific favorite stocks stored in a dat
 
 ## Project Structure
 
-```text
+```
 StockScope/
-  app/
-    __init__.py
-    config.py
-    metrics.py
-    models.py
-    routes.py
-    stock_service.py
-    static/
-      app.js
-      styles.css
-    templates/
-      base.html
-      index.html
-      login.html
-      register.html
-      favorites.html
-      stock_detail.html
-  docs/
-    PROJECT_OUTLINE.md
-    PAPER_PROTOTYPE.md
-    DEMO_SCRIPT.md
-  tests/
-    conftest.py
-    test_metrics.py
-    test_routes.py
-  run.py
-  requirements.txt
-  .env.example
+	app/
+		__init__.py
+		config.py
+		metrics.py
+		models.py
+		routes.py
+		stock_service.py
+		static/
+			app.js
+			styles.css
+		templates/
+			base.html
+			index.html
+			login.html
+			register.html
+			favorites.html
+			stock_detail.html
+	docs/
+		PROJECT_OUTLINE.md
+		PAPER_PROTOTYPE.md
+		DEMO_SCRIPT.md
+	tests/
+		conftest.py
+		test_metrics.py
+		test_routes.py
+	run.py
+	requirements.txt
+	.env.example
 ```
 
 ## Getting Started
@@ -115,8 +112,8 @@ Open `http://127.0.0.1:5000`.
 ## API Endpoints
 
 - `POST /api/stock`
-  - Body: `{ "ticker": "IBM" }`
-  - Returns computed metrics and enrichment fields
+	- Body: `{ "ticker": "IBM" }`
+	- Returns computed metrics and enrichment fields
 - `POST /api/favorites` (auth required)
 - `GET /api/favorites?industry=tech` (auth required)
 - `DELETE /api/favorites/<ticker>` (auth required)
@@ -169,7 +166,6 @@ pytest -q
 Current unit tests cover:
 - Growth and ratio math
 - Stock API success and error paths
-- Auth redirect behavior for protected routes
 - User-scoped favorites
 - Favorites filtering by industry
 
@@ -183,6 +179,7 @@ Current unit tests cover:
 
 ## Future Improvements
 
-- Add provider fallback (e.g., Finnhub) to reduce rate-limit failures
+- Add external provider fallback to reduce rate-limit failures
 - Add peer-comparison data and earnings calendar
+- Add role-based admin analytics dashboard
 - Add CI pipeline and deployment config (Docker + cloud hosting)
