@@ -1,211 +1,113 @@
 # StockScope
 
-StockScope is a full-stack stock analysis app that lets users query a ticker and evaluate it using growth-focused valuation signals:
+StockScope is a student-built full-stack stock analysis platform designed to demonstrate product thinking, API integration, and data-driven decision support.
 
-- 1-year net income growth rate (computed from Alpha Vantage annual income statement data)
-- P/E ratio
-- Growth over P/E ratio (growth divided by P/E)
-- Growth-over-P/E threshold check (`> 1`)
-- Lynch-style check (P/E < growth)
+The app allows a user to search a stock ticker, compute growth-focused valuation metrics, and manage a personalized favorites portfolio with authentication and industry filtering.
 
-It also supports user accounts and user-specific favorite stocks stored in DynamoDB with industry-based GSI queries, plus a controlled sign-up form demo with real-time validation and async save status transitions.
+## Project Summary
 
-## Features
+- Built by students as a portfolio-ready web application
+- Focuses on practical investing metrics:
+  - 1-year Net Income Growth Rate
+  - P/E Ratio
+  - Growth over P/E (PEG-style signal)
+  - Lynch-style validation (P/E < Growth)
+- Includes user login/signup and user-scoped favorites storage
+- Supports industry-based filtering via DynamoDB GSI query paths
 
-### Required
-- Query stock by ticker symbol
-- Calculate 1-year growth rate using:
-  - `Growth Rate = ((Ending - Beginning) / Beginning) * 100`
-  - Beginning and ending values taken from net income in the latest two annual reports
-- Show P/E ratio from provider data
-- Show Growth/P-E and indicate both:
-  - whether Growth/P-E is greater than 1
-  - whether Lynch rule passes (`P/E < Growth`)
-- Popup error modal if ticker is not found
+## Key Features
 
-### Nice to Have (Implemented)
-- Favorite a stock and store it in database
-- Save industry while storing favorite
-- Show user favorites with metrics
-- Filter favorites by industry
-- Controlled form with field-level validation (`Name Required`, `Invalid Email`, `10-digit Phone Required`)
-- Form-level validation disables submit until valid
-- Async persistence status (`READY`, `SAVING`, `SUCCESS`, `ERROR`)
-- Category filter query path backed by DynamoDB GSI
-
-### Next Level (Implemented/Partially Implemented)
-- Login and routing
-- User-specific favorite tracking (not global favorites)
-- In-depth stock page route with enhanced info (analyst target, 52-week range)
+- Login and signup flow before accessing the search experience
+- Home search screen and dedicated stock results screen
+- Error modal for ticker lookup failures
+- Favorites saved per user (not shared globally)
+- Industry filter for favorited stocks
+- Enhanced stock context (52-week range, target price, latest reported period)
 
 ## Tech Stack
+
 - Backend: Flask, Flask-Login, boto3
-- Frontend: Server-rendered HTML templates + vanilla JavaScript + CSS
-- Database: DynamoDB (local Docker or AWS)
-- Testing: Pytest
-- Market Data: Alpha Vantage (`OVERVIEW` + `INCOME_STATEMENT`)
+- Frontend: HTML templates, vanilla JavaScript, CSS
+- Database: DynamoDB (DynamoDB Local in Docker for development)
+- Testing: pytest
+- Market Data Providers:
+  - Finnhub (primary)
+  - Alpha Vantage (supported)
+  - yfinance fallback
 
-## Project Structure
+## Requirements
 
-```text
-StockScope/
-  app/
-    __init__.py
-    config.py
-    metrics.py
-    routes.py
-    store.py
-    auth_user.py
-    stock_service.py
-    static/
-      app.js
-      styles.css
-    templates/
-      base.html
-      index.html
-      login.html
-      register.html
-      favorites.html
-      stock_detail.html
-  docs/
-    PROJECT_OUTLINE.md
-    PAPER_PROTOTYPE.md
-    DEMO_SCRIPT.md
-  tests/
-    conftest.py
-    test_metrics.py
-    test_routes.py
-  scripts/
-    init_dynamodb.py
-  docker-compose.yml
-  Dockerfile
-  run.py
-  requirements.txt
-  .env.example
-```
+- Docker Desktop
+- Docker Compose
+- Optional local Python 3.10+ for non-container workflows
 
-## Getting Started
+## Environment Setup
 
-### 1. Create and activate virtual environment
+Create a local .env file from .env.example and provide required keys.
 
-Windows PowerShell:
+Required variables:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
+- SECRET_KEY
+- STOCK_DATA_PROVIDER (recommended: finnhub)
+- FINNHUB_API_KEY
+- ALPHAVANTAGE_API_KEY (optional when not using alpha)
+- DynamoDB settings (already provided in .env.example)
 
-### 2. Install dependencies
+## Run the Application (Recommended: Docker)
 
-```powershell
-pip install -r requirements.txt
-```
-
-### 3. Configure environment
-
-Copy `.env.example` values into your shell or an `.env` file.
-
-Required values:
-- `SECRET_KEY`
-- `ALPHAVANTAGE_API_KEY`
-
-Notes:
-- The default `demo` key is very limited and may not return all symbols.
-- Alpha Vantage free tier has strict daily limits.
-- Set `STOCK_DATA_PROVIDER=yfinance` to use the yFinance endpoint instead of Alpha Vantage.
-
-### 4. Start local DynamoDB (Docker)
+From project root:
 
 ```powershell
 docker compose up -d dynamodb
-python scripts/init_dynamodb.py
+docker compose run --rm app python scripts/init_dynamodb.py
+docker compose up -d --build app
 ```
 
-### 5. Run the app
+Open:
+
+```text
+http://127.0.0.1:5000
+```
+
+## Run Tests
+
+Containerized test command:
 
 ```powershell
-python run.py
+docker compose run --rm app python -m pytest -q
 ```
-
-Open `http://127.0.0.1:5000`.
 
 ## API Endpoints
 
-- `POST /api/stock`
-  - Body: `{ "ticker": "IBM" }`
-  - Returns computed metrics and enrichment fields
-- `POST /api/favorites` (auth required)
-- `GET /api/favorites?industry=tech` (auth required)
-- `DELETE /api/favorites/<ticker>` (auth required)
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/signups`
-- `POST /api/signups` (includes configurable server-side delay)
+- POST /api/stock
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/favorites
+- GET /api/favorites
+- DELETE /api/favorites/<ticker>
+- GET /api/signups
+- POST /api/signups
 
-## Alpha Vantage Data Mapping (IBM Example)
+## Metric Formula Used
 
-StockScope uses two Alpha Vantage calls for each ticker:
+Growth Rate = ((Ending Net Income - Beginning Net Income) / Beginning Net Income) * 100
 
-1. Overview call (P/E, 52-week range, industry, target price):
+Growth over P/E = Growth Rate / P/E Ratio
 
-```text
-https://www.alphavantage.co/query?function=OVERVIEW&symbol=IBM&apikey=YOUR_KEY
-```
+## Portfolio and Deliverables
 
-2. Income statement call (annual net income history):
+Supporting project artifacts are included in docs:
 
-```text
-https://www.alphavantage.co/query?function=INCOME_STATEMENT&symbol=IBM&apikey=YOUR_KEY
-```
+- docs/PROJECT_OUTLINE.md
+- docs/PAPER_PROTOTYPE.md
+- docs/DEMO_SCRIPT.md
 
-Then it computes the assignment metrics:
+## Student Notes
 
-- `growth_rate = ((ending_net_income - beginning_net_income) / beginning_net_income) * 100`
-- `pe_ratio = OVERVIEW.PERatio`
-- `growth_over_pe = growth_rate / pe_ratio`
+This project was built as a student application to practice:
 
-Python-style logic used by this project:
-
-```python
-reports = sorted(annual_reports, key=lambda r: r["fiscalDateEnding"], reverse=True)
-ending = float(reports[0]["netIncome"])
-beginning = float(reports[1]["netIncome"])
-growth_rate = ((ending - beginning) / beginning) * 100
-pe_ratio = float(overview["PERatio"])
-growth_over_pe = growth_rate / pe_ratio
-```
-
-Notes:
-- The free `demo` key can return valid `OVERVIEW` data for IBM but may fail for `INCOME_STATEMENT` on IBM.
-- Use your own API key in `.env` (`ALPHAVANTAGE_API_KEY`) for reliable results.
-
-## Testing
-
-Run all tests:
-
-```powershell
-pytest -q
-```
-
-Current unit tests cover:
-- Growth and ratio math
-- Stock API success and error paths
-- Auth redirect behavior for protected routes
-- User-scoped favorites
-- Favorites filtering by industry
-- Signup validation and success path
-- Store API tests with stubbed table calls
-
-## Submission Deliverables Mapping
-
-- Production-ready README: this file
-- Unit tests: `tests/`
-- Demo screenshare script: `docs/DEMO_SCRIPT.md`
-- Project outline/work tickets: `docs/PROJECT_OUTLINE.md`
-- Paper prototype: `docs/PAPER_PROTOTYPE.md`
-
-## Future Improvements
-
-- Add provider fallback (e.g., Finnhub) to reduce rate-limit failures
-- Add peer-comparison data and earnings calendar
-- Add CI pipeline and deployment config (Docker + cloud hosting)
+- full-stack architecture
+- authentication and protected routing
+- cloud-style data modeling with GSIs
+- robust API error handling and provider fallback strategy
+- test-driven validation of backend behavior
