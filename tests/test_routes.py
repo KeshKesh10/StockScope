@@ -1,6 +1,3 @@
-from app.models import Favorite
-
-
 def register_and_login(client, username="alice", password="pass1234"):
     client.post("/register", data={"username": username, "password": password})
     return client.post("/login", data={"username": username, "password": password})
@@ -25,6 +22,12 @@ def test_favorites_requires_login(client):
     assert "/login" in response.headers["Location"]
 
 
+def test_home_requires_login(client):
+    response = client.get("/")
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
 def test_industry_requires_login(client):
     response = client.get("/industry")
     assert response.status_code == 302
@@ -38,9 +41,16 @@ def test_profile_requires_login(client):
 
 
 def test_stock_results_screen_loads(client):
+    register_and_login(client, "viewer", "pass1234")
     response = client.get("/stock/ibm")
     assert response.status_code == 200
     assert b"detail-panel" in response.data
+
+
+def test_stock_results_requires_login(client):
+    response = client.get("/stock/ibm")
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
 
 
 def test_favorites_are_per_user(client, app_instance):
@@ -71,8 +81,9 @@ def test_favorites_are_per_user(client, app_instance):
     assert listed_bob.status_code == 200
     assert listed_bob.get_json() == []
 
-    with app_instance.app_context():
-        assert Favorite.query.count() == 1
+    store = app_instance.config["STORE"]
+    total = sum(len(user_favs) for user_favs in store.favorites.values())
+    assert total == 1
 
 
 def test_filter_favorites_by_industry(client):
@@ -104,3 +115,31 @@ def test_filter_favorites_by_industry(client):
     payload = response.get_json()
     assert len(payload) == 1
     assert payload[0]["ticker"] == "IBM"
+
+
+def test_signup_api_validation_and_success(client):
+    bad = client.post(
+        "/api/signups",
+        json={"name": "", "email": "bad", "phone": "12", "category": ""},
+    )
+    assert bad.status_code == 400
+    bad_payload = bad.get_json()
+    assert "fieldErrors" in bad_payload
+    assert "name" in bad_payload["fieldErrors"]
+
+    ok = client.post(
+        "/api/signups",
+        json={
+            "name": "Casey",
+            "email": "casey@example.com",
+            "phone": "5551234567",
+            "category": "colors",
+        },
+    )
+    assert ok.status_code == 201
+
+    listing = client.get("/api/signups?category=colors")
+    assert listing.status_code == 200
+    listed = listing.get_json()
+    assert len(listed) == 1
+    assert listed[0]["email"] == "casey@example.com"

@@ -7,13 +7,13 @@
   <p class="error-text">{{ error }}</p>
   {% endif %}
   <form method="post" class="auth-form compact-auth">
-    <label for="username">Username</label>
+    <label for="username">Username:</label>
     <input id="username" name="username" required />
-    <label for="password">Password</label>
+    <label for="password">Password:</label>
     <input id="password" name="password" type="password" required />
     <div class="auth-actions">
       <button type="submit">Login</button>
-      <a class="link-button" href="{{ url_for('register_page') }}">Sign Up</a>
+      <a class="link-button" href="{{ url_for('register_page') }}">Sign up</a>
     </div>
   </form>
 </section>

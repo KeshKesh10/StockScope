@@ -2,15 +2,49 @@
 {% block title %}StockScope | Profile{% endblock %}
 {% block content %}
 <section class="hero small">
-  <h1>Profile</h1>
-  <p>Signed in as {{ current_user.username }}.</p>
+  <h1>Controlled Sign-Up Form</h1>
+  <p>Signed in as {{ current_user.username }}. Submit only when all fields are valid.</p>
 </section>
 
 <section class="card">
-  <p>Use Favorites to manage your saved stocks and Industry page to filter them.</p>
-  <p>
-    <a class="link-button" href="{{ url_for('favorites_page') }}">Favorites</a>
-    <a class="link-button" href="{{ url_for('industry_page') }}">Industry Search</a>
-  </p>
+  <form id="controlled-signup-form" class="search-form">
+    <label for="signup-name">Name</label>
+    <input id="signup-name" name="name" autocomplete="name" />
+    <p id="error-name" class="error-text field-error"></p>
+
+    <label for="signup-email">Email</label>
+    <input id="signup-email" name="email" autocomplete="email" />
+    <p id="error-email" class="error-text field-error"></p>
+
+    <label for="signup-phone">Phone #</label>
+    <input id="signup-phone" name="phone" placeholder="5551234567" />
+    <p id="error-phone" class="error-text field-error"></p>
+
+    <label for="signup-category">Category</label>
+    <select id="signup-category" name="category">
+      <option value="">Select a category</option>
+      <option value="colors">Colors</option>
+      <option value="football">Football</option>
+      <option value="college">College</option>
+    </select>
+    <p id="error-category" class="error-text field-error"></p>
+
+    <button id="signup-submit" type="submit" disabled>Submit</button>
+    <p id="save-status" class="status-text">READY</p>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Filter by Category</h2>
+  <div class="search-row">
+    <select id="category-filter">
+      <option value="">All Categories</option>
+      <option value="colors">Colors</option>
+      <option value="football">Football</option>
+      <option value="college">College</option>
+    </select>
+    <button id="apply-category-filter" type="button">Filter</button>
+  </div>
+  <ul id="signup-list" class="list-view"></ul>
 </section>
 {% endblock %}

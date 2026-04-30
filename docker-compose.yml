@@ -1,0 +1,26 @@
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    ports:
+      - "8000:8000"
+
+  app:
+    build: .
+    depends_on:
+      - dynamodb
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALPHAVANTAGE_API_KEY: ${ALPHAVANTAGE_API_KEY}
+      FINNHUB_API_KEY: ${FINNHUB_API_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      DYNAMODB_ENDPOINT_URL: http://dynamodb:8000
+      USERS_TABLE: ${USERS_TABLE}
+      FAVORITES_TABLE: ${FAVORITES_TABLE}
+      SIGNUPS_TABLE: ${SIGNUPS_TABLE}
+      POST_SAVE_DELAY_SECONDS: ${POST_SAVE_DELAY_SECONDS}
+      STOCK_DATA_PROVIDER: ${STOCK_DATA_PROVIDER}
+    ports:
+      - "5000:5000"

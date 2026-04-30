@@ -16,12 +16,10 @@
     <header class="topbar">
       <a class="brand" href="{{ url_for('index') }}">StockScope</a>
       <nav>
+        {% if current_user.is_authenticated %}
         <a href="{{ url_for('index') }}">Search</a>
         <a href="{{ url_for('favorites_page') }}">Favorites</a>
-        {% if current_user.is_authenticated %}
         <a href="{{ url_for('industry_page') }}">Industry</a>
-        {% endif %}
-        {% if current_user.is_authenticated %}
         <a href="{{ url_for('profile_page') }}">Profile</a>
         <span class="username">{{ current_user.username }}</span>
         <form method="post" action="{{ url_for('logout_user_route') }}" class="inline-form">
@@ -36,7 +34,7 @@
 
     <main class="layout">{% block content %}{% endblock %}</main>
 
-    <div id="error-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="error-title">
+    <div id="error-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="error-title" hidden>
       <div class="modal-card">
         <h3 id="error-title">Ticker Not Found</h3>
         <p id="error-message">We could not find that stock ticker.</p>

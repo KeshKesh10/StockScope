@@ -8,7 +8,7 @@ StockScope is a full-stack stock analysis app that lets users query a ticker and
 - Growth-over-P/E threshold check (`> 1`)
 - Lynch-style check (P/E < growth)
 
-It also supports user accounts and user-specific favorite stocks stored in a database with industry tagging and industry-based filtering.
+It also supports user accounts and user-specific favorite stocks stored in DynamoDB with industry-based GSI queries, plus a controlled sign-up form demo with real-time validation and async save status transitions.
 
 ## Features
 
@@ -28,6 +28,10 @@ It also supports user accounts and user-specific favorite stocks stored in a dat
 - Save industry while storing favorite
 - Show user favorites with metrics
 - Filter favorites by industry
+- Controlled form with field-level validation (`Name Required`, `Invalid Email`, `10-digit Phone Required`)
+- Form-level validation disables submit until valid
+- Async persistence status (`READY`, `SAVING`, `SUCCESS`, `ERROR`)
+- Category filter query path backed by DynamoDB GSI
 
 ### Next Level (Implemented/Partially Implemented)
 - Login and routing
@@ -35,9 +39,9 @@ It also supports user accounts and user-specific favorite stocks stored in a dat
 - In-depth stock page route with enhanced info (analyst target, 52-week range)
 
 ## Tech Stack
-- Backend: Flask, Flask-SQLAlchemy, Flask-Login
+- Backend: Flask, Flask-Login, boto3
 - Frontend: Server-rendered HTML templates + vanilla JavaScript + CSS
-- Database: SQLite (configurable)
+- Database: DynamoDB (local Docker or AWS)
 - Testing: Pytest
 - Market Data: Alpha Vantage (`OVERVIEW` + `INCOME_STATEMENT`)
 
@@ -49,8 +53,9 @@ StockScope/
     __init__.py
     config.py
     metrics.py
-    models.py
     routes.py
+    store.py
+    auth_user.py
     stock_service.py
     static/
       app.js
@@ -70,6 +75,10 @@ StockScope/
     conftest.py
     test_metrics.py
     test_routes.py
+  scripts/
+    init_dynamodb.py
+  docker-compose.yml
+  Dockerfile
   run.py
   requirements.txt
   .env.example
@@ -103,8 +112,16 @@ Required values:
 Notes:
 - The default `demo` key is very limited and may not return all symbols.
 - Alpha Vantage free tier has strict daily limits.
+- Set `STOCK_DATA_PROVIDER=yfinance` to use the yFinance endpoint instead of Alpha Vantage.
 
-### 4. Run the app
+### 4. Start local DynamoDB (Docker)
+
+```powershell
+docker compose up -d dynamodb
+python scripts/init_dynamodb.py
+```
+
+### 5. Run the app
 
 ```powershell
 python run.py
@@ -120,6 +137,10 @@ Open `http://127.0.0.1:5000`.
 - `POST /api/favorites` (auth required)
 - `GET /api/favorites?industry=tech` (auth required)
 - `DELETE /api/favorites/<ticker>` (auth required)
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `GET /api/signups`
+- `POST /api/signups` (includes configurable server-side delay)
 
 ## Alpha Vantage Data Mapping (IBM Example)
 
@@ -172,6 +193,8 @@ Current unit tests cover:
 - Auth redirect behavior for protected routes
 - User-scoped favorites
 - Favorites filtering by industry
+- Signup validation and success path
+- Store API tests with stubbed table calls
 
 ## Submission Deliverables Mapping
 
