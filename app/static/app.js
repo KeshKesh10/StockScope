@@ -131,14 +131,17 @@ async function loadFavorites(industry = "") {
 }
 
 function setupFavoritesPage() {
-  const form = document.getElementById("industry-form");
-  if (!form) return;
+  const tableBody = document.getElementById("favorites-body");
+  if (!tableBody) return;
 
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const industry = document.getElementById("industry-filter").value.trim();
-    loadFavorites(industry).catch((error) => showModal(error.message));
-  });
+  const form = document.getElementById("industry-form");
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const industry = document.getElementById("industry-filter").value.trim();
+      loadFavorites(industry).catch((error) => showModal(error.message));
+    });
+  }
 
   loadFavorites().catch((error) => showModal(error.message));
 }

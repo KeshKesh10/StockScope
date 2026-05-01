@@ -16,12 +16,6 @@ def test_stock_api_not_found(client):
     assert response.status_code == 404
 
 
-def test_favorites_requires_login(client):
-    response = client.get("/favorites")
-    assert response.status_code == 302
-    assert "/login" in response.headers["Location"]
-
-
 def test_home_requires_login(client):
     response = client.get("/")
     assert response.status_code == 302

@@ -22,7 +22,7 @@
 
 <section class="card nav-hub">
   {% if current_user.is_authenticated %}
-  <a class="link-button" href="{{ url_for('favorites_page') }}">Favorites</a>
+  <a class="link-button" href="{{ url_for('industry_page') }}">Favorites</a>
   <a class="link-button" href="{{ url_for('profile_page') }}">Profile</a>
   {% else %}
   <a class="link-button" href="{{ url_for('login_page') }}">Login</a>

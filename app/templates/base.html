@@ -18,8 +18,7 @@
       <nav>
         {% if current_user.is_authenticated %}
         <a href="{{ url_for('index') }}">Search</a>
-        <a href="{{ url_for('favorites_page') }}">Favorites</a>
-        <a href="{{ url_for('industry_page') }}">Industry</a>
+        <a href="{{ url_for('industry_page') }}">Favorites</a>
         <a href="{{ url_for('profile_page') }}">Profile</a>
         <span class="username">{{ current_user.username }}</span>
         <form method="post" action="{{ url_for('logout_user_route') }}" class="inline-form">

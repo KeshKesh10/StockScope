@@ -100,11 +100,6 @@ def register_routes(app: Flask) -> None:
         logout_user()
         return redirect(url_for("index"))
 
-    @app.get("/favorites")
-    @login_required
-    def favorites_page():
-        return render_template("favorites.html")
-
     @app.get("/industry")
     @login_required
     def industry_page():
