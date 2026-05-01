@@ -242,8 +242,16 @@ class FinnhubStockProvider:
             "analyst_target_price": parse_optional_number(metric_values.get("targetPrice")),
             "week_52_high": parse_optional_number(metric_values.get("52WeekHigh")),
             "week_52_low": parse_optional_number(metric_values.get("52WeekLow")),
-            "description": None,
+            "description": self._fetch_description(ticker),
         }
+
+    def _fetch_description(self, ticker: str) -> str | None:
+        try:
+            import yfinance as yf
+            info = yf.Ticker(ticker).info or {}
+            return info.get("longBusinessSummary") or None
+        except Exception:
+            return None
 
 
 class YFinanceStockProvider:
